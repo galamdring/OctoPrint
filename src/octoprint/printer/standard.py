@@ -827,11 +827,21 @@ class Printer(PrinterInterface, comm.MachineComPrintCallback):
 		data = {
 			"time": currentTimeUtc
 		}
-		for tool in temp.keys():
-			data["tool%d" % tool] = {
-				"actual": temp[tool][0],
-				"target": temp[tool][1]
-			}
+		printer_profile = self._printerProfileManager.get_current_or_default()
+                extruder_count = printer_profile["extruder"]["count"]
+                shared_nozzle = printer_profile["extruder"]["sharedNozzle"]
+		if extruder_count > 0 and shared_nozzle:
+			for extruder in range(extruder_count):
+  				data["tool%d" % extruder] = {
+					"actual":temp[0][0],
+					"target":temp[0][1]
+				}
+		else:
+			for tool in temp.keys():
+				data["tool%d" % tool] = {
+					"actual": temp[tool][0],
+					"target": temp[tool][1]
+				}
 		if bedTemp is not None and isinstance(bedTemp, tuple):
 			data["bed"] = {
 				"actual": bedTemp[0],
